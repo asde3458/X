@@ -19,7 +19,7 @@ cloudinary.config({
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-@@ -16, 6 + 25, 7 @@app.use(express.urlencoded({ extended: true })); // to parse form data(urlencode
+app.use(express.urlencoded({ extended: true })); // to parse form data(urlencode
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
