@@ -1,2 +1,2 @@
-# Octagram
-an social media project like instagram
+# Instagram 📷
+A simple Instagram backend clone using nestjs.
