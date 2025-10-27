@@ -4,3 +4,10 @@ A simple Instagram backend clone using nestjs.
 
 :warning: `Node version >= 14 is required`
 
+
+**Install Dependencies**
+
+1.  `npm install` to install root dependencies
+2.  `npm run frontend-install` to install client dependencies
+3.  `npm run backend-install` for server dependencies
+
