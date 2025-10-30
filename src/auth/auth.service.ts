@@ -8,6 +8,7 @@ import {
 import { UsersService } from 'src/users/users.service';
 import { MailService } from 'src/mail/mail.service';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { SigninDto, SignupDto } from './dto';
@@ -22,9 +23,9 @@ export class AuthService {
     private mailService: MailService,
   ) {}
 
-  private async hashPassword(password: string): Promise<string> {
+  private async createHash(stringToHash: string): Promise<string> {
     const hashingRounds = 10;
-    return await bcrypt.hash(password, hashingRounds);
+    return await bcrypt.hash(stringToHash, hashingRounds);
   }
 
   async login(user: IUserPaylaod): Promise<{
@@ -75,7 +76,7 @@ export class AuthService {
       });
     }
 
-    const hashedPassword = await this.hashPassword(password);
+    const hashedPassword = await this.createHash(password);
 
     const newUser = await this.userService.createUser({
       username,
@@ -92,10 +93,47 @@ export class AuthService {
   }
 
   async verifyToken(token: string) {
-    console.log(token);
     const verifiedUser = await this.userService.verifyUser(token);
     delete verifiedUser.password;
     return verifiedUser;
+  }
+
+  async forgotPassword(username: string) {
+    const userFromDb = await this.userService.getUserByUsername(username);
+    if (!userFromDb) {
+      throw new ForbiddenException('User does not exists');
+    }
+    const uniqueString =
+      username + this.configService.get<string>('FORGOT_PASSWORD_SECRET');
+    const hashedString = await this.createHash(uniqueString);
+    this.mailService.sendUserForgotInstructions(userFromDb, hashedString);
+    return {
+      message: 'Forgot password mail was sent to associated email',
+      status: 201,
+    };
+  }
+
+  async verifyForgotPass(token: string, username: string) {
+    const userFromDb = await this.userService.getUserByUsername(username);
+
+    if (!userFromDb) {
+      throw new ForbiddenException('Something went wrong');
+    }
+    const stringToCompare =
+      username + this.configService.get<string>('FORGOT_PASSWORD_SECRET');
+    const isEqual = await bcrypt.compare(stringToCompare, token);
+    if (!isEqual) {
+      throw new ForbiddenException('Something went wrong');
+    }
+    const newPassword = randomBytes(15).toString('hex');
+    const newHashedPassword = await this.createHash(newPassword);
+    await this.userService.resetPassword(username, newHashedPassword);
+
+    this.mailService.sendUserPasswordReset(userFromDb, newPassword);
+    return {
+      message: 'Password has been reset. Check your mail',
+      status: '200',
+    };
   }
 
   private async signToken(

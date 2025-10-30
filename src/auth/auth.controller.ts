@@ -39,6 +39,20 @@ export class AuthController {
     return await this.authService.verifyToken(token);
   }
 
+  @Public()
+  @Get('/forgotpass')
+  async forgotPassword(@Query() { username }: { username: string }) {
+    return await this.authService.forgotPassword(username);
+  }
+
+  @Public()
+  @Get('/forgotpass/verify')
+  async verifyForgotPass(
+    @Query() { code, user }: { code: string; user: string },
+  ) {
+    return await this.authService.verifyForgotPass(code, user);
+  }
+
   @Get('/profile')
   async profile(@GetUser() user: { id: string; username: string }) {
     return user;
