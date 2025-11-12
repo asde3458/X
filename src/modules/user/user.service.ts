@@ -23,7 +23,7 @@ export class UserService {
 
     @Inject(FilesService)
     private readonly filesService: FilesService
-  ) {}
+  ) { }
 
   async get(searchText: string, currentUserID: number): Promise<UserEntity[]> {
     if (!searchText.length)
