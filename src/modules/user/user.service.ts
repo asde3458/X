@@ -116,7 +116,12 @@ export class UserService {
       await this.filesService.deletePublicFile(user[field].id);
     }
 
-    const uploadedFile = await this.filesService.uploadPublicFile(fileBuffer, filename);
+    const uploadedFile = await this.filesService.uploadPublicFile({
+      file,
+      quality: field === 'avatar' ? 5 : 20,
+      imageMaxSizeMB: 20,
+      type: 'image',
+    });
     const updatedUser = await this.users.save({
       ...user,
       [field]: uploadedFile,
