@@ -9,14 +9,14 @@ export class EmailVerificationService {
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly userService: UserService
-  ) {}
+  ) { }
 
   sendVerificationLink(email: string): Promise<void> {
     const token = this.jwtService.sign({ email });
 
     const url = `${process.env.FRONTEND_URL}?token=${token}`;
-    const subject = 'Jira email confirmation';
-    const text = `Welcome to Jira (clone). To confirm the email address, click here: ${url}`;
+    const subject = 'Instagram email confirmation';
+    const text = `Welcome to Instagram (clone). To confirm the email address, click here: ${url}`;
 
     return this.emailService.sendEmail({
       to: email,
