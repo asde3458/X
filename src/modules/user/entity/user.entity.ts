@@ -26,7 +26,7 @@ import stringToHslColor from '../../../common/utils/stringToHslColor';
 import { NotificationEntity } from '../../notifications/entity/notification.entity';
 import { CommentEntity } from '../../posts/entity/comment.entity';
 import { PostEntity } from '../../posts/entity/post.entity';
-
+import { PublicFileModel } from "../../../../../frontend/src/models/common/public.file.model";
 import stringToHslColor from '../../../common/utils/stringToHslColor';
 
 export interface UserGoogleData {
@@ -58,7 +58,12 @@ export interface UserJwtPayload {
   readonly email: string;
   readonly is2FAEnabled: boolean;
 }
-
+export interface UserSuggestion {
+  id: number;
+  color: string;
+  avatar?: PublicFileModel | null;
+  username: string;
+}
 @Entity()
 export class UserEntity extends BaseEntity {
   @Column({ length: 64 })
