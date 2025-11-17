@@ -9,7 +9,7 @@ export class EmailVerificationService {
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly userService: UserService
-  ) { }
+  ) {}
 
   sendVerificationLink(email: string): Promise<void> {
     const token = this.jwtService.sign({ email });

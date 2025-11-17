@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { extname } from 'path';
 import { FilesService } from '../files/files.service';
 import { PublicFileEntity } from '../files/entity/public-file.entity';
-import { CreateUserGithubDTO } from './dto/create-user-github.dto';
+import { CreateUserGithubDTO } from './dto';
 import { NotificationEntity } from '../notifications/entity/notification.entity';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class UserService {
 
     @Inject(FilesService)
     private readonly filesService: FilesService
-  ) { }
+  ) {}
 
   async get(searchText: string, currentUserID: number): Promise<UserEntity[]> {
     if (!searchText.length)
@@ -116,12 +116,7 @@ export class UserService {
       await this.filesService.deletePublicFile(user[field].id);
     }
 
-    const uploadedFile = await this.filesService.uploadPublicFile({
-      file,
-      quality: field === 'avatar' ? 5 : 20,
-      imageMaxSizeMB: 20,
-      type: 'image',
-    });
+    const uploadedFile = await this.filesService.uploadPublicFile(fileBuffer, filename);
     const updatedUser = await this.users.save({
       ...user,
       [field]: uploadedFile,

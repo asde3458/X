@@ -2,6 +2,7 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  Index,
   JoinColumn,
   JoinTable,
   ManyToMany,
@@ -15,19 +16,13 @@ import { IsEmail } from 'class-validator';
 import { Exclude } from 'class-transformer';
 
 import { BaseEntity } from '../../../common/types/base.entity';
-import { IssueEntity } from '../../issues/entity/issue.entity';
-import { PostEntity } from '../../posts/entity/project.entity';
-import { BoardEntity } from '../../boards/entity/board.entity';
-import { Exclude } from 'class-transformer';
-import { TeamEntity } from '../../teams/entity/team.entity';
-import { CommentEntity } from '../../issues/entity/comment.entity';
 import { PublicFileEntity } from '../../files/entity/public-file.entity';
-import stringToHslColor from '../../../common/utils/stringToHslColor';
 import { NotificationEntity } from '../../notifications/entity/notification.entity';
 import { CommentEntity } from '../../posts/entity/comment.entity';
 import { PostEntity } from '../../posts/entity/post.entity';
-import { PublicFileModel } from "../../../../../frontend/src/models/common/public.file.model";
+
 import stringToHslColor from '../../../common/utils/stringToHslColor';
+import { PublicFileModel } from "../../../../../frontend/src/models/common/public.file.model";
 
 export interface UserGoogleData {
   email: string;
@@ -58,19 +53,25 @@ export interface UserJwtPayload {
   readonly email: string;
   readonly is2FAEnabled: boolean;
 }
+
 export interface UserSuggestion {
   id: number;
   color: string;
   avatar?: PublicFileModel | null;
   username: string;
 }
+
 @Entity()
 export class UserEntity extends BaseEntity {
   @Column({ length: 64 })
   name: string;
+
   @Column({ length: 24, unique: true })
+  @Index()
   username: string;
+
   @Column({ unique: true })
+  @Index()
   @IsEmail()
   email: string;
 
@@ -82,7 +83,6 @@ export class UserEntity extends BaseEntity {
     if (this.password) this.password = await bcrypt.hash(this.password, 10);
   }
   async validatePassword(password: string): Promise<boolean> {
-
     if (this.isOAuthAccount) return true;
     return bcrypt.compare(password, this.password);
   }
@@ -127,8 +127,6 @@ export class UserEntity extends BaseEntity {
   @JoinColumn()
   avatar: PublicFileEntity;
 
-
-
   @Column({ nullable: true })
   position: string;
   @Column({ nullable: true })
@@ -138,37 +136,27 @@ export class UserEntity extends BaseEntity {
   @Column({ nullable: true })
   location: string;
 
-  @OneToMany(() => CommentEntity, (comment) => comment.author, {
   @ManyToMany(() => PostEntity, (post) => post.likes, {
-    cascade: true,
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  comments: CommentEntity[];
   likedPosts: PostEntity[];
   @RelationId('likedPosts')
   likedPostsIDs: number[];
 
-  @ManyToMany(() => TeamEntity, (team) => team.users, {
   @ManyToMany(() => CommentEntity, (comment) => comment.likes, {
-    cascade: true,
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  teams: TeamEntity[];
   likedComments: CommentEntity[];
   @RelationId('likedComments')
   likedCommentsIDs: number[];
 
-  @ManyToOne(() => TeamEntity, (team) => team.leader, {
   @OneToMany(() => CommentEntity, (comment) => comment.author, {
     cascade: true,
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  teamsLeader: TeamEntity[];
-  @RelationId('teamsLeader')
-  teamsLeaderIDs: number[];
   comments: CommentEntity[];
 
   @OneToMany(() => NotificationEntity, (notification) => notification.user, {
