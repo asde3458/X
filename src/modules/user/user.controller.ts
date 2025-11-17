@@ -21,7 +21,7 @@ import { PublicFileEntity } from '../files/entity/public-file.entity';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get()
   async get(@Query('search') search: string, @Request() req): Promise<UserEntity[]> {

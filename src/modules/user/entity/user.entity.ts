@@ -22,7 +22,6 @@ import { CommentEntity } from '../../posts/entity/comment.entity';
 import { PostEntity } from '../../posts/entity/post.entity';
 
 import stringToHslColor from '../../../common/utils/stringToHslColor';
-import { PublicFileModel } from "../../../../../frontend/src/models/common/public.file.model";
 
 export interface UserGoogleData {
   email: string;
@@ -57,7 +56,7 @@ export interface UserJwtPayload {
 export interface UserSuggestion {
   id: number;
   color: string;
-  avatar?: PublicFileModel | null;
+  avatar?: PublicFileEntity | null;
   username: string;
 }
 
@@ -151,6 +150,23 @@ export class UserEntity extends BaseEntity {
   likedComments: CommentEntity[];
   @RelationId('likedComments')
   likedCommentsIDs: number[];
+
+  @ManyToMany(() => UserEntity, (user) => user.followedUsers, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinTable()
+  followers: UserEntity[];
+  @RelationId('followers')
+  followersIDs: number[];
+
+  @ManyToMany(() => UserEntity, (user) => user.followers, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  followedUsers: UserEntity[];
+  @RelationId('followedUsers')
+  followedUsersIDs: number[];
 
   @OneToMany(() => CommentEntity, (comment) => comment.author, {
     cascade: true,

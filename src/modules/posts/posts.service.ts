@@ -7,24 +7,41 @@ import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginat
 import { PostEntity } from './entity/post.entity';
 import { UserEntity } from '../user/entity/user.entity';
 
+import { FilesService } from '../files/files.service';
 import { UserService } from '../user/user.service';
+import { CommentEntity } from './entity/comment.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(PostEntity)
     private posts: Repository<PostEntity>,
+    @InjectRepository(CommentEntity)
+    private postComments: Repository<CommentEntity>,
+
+    @Inject(FilesService)
+    private readonly filesService: FilesService,
 
     @Inject(UserService)
     private readonly userService: UserService
-  ) { }
+  ) {}
 
   async getAll(query: IPaginationOptions = { page: 1, limit: 10 }, userID: number): Promise<Pagination<PostEntity>> {
     const currentUser = await this.userService.getByID(userID);
-    const { items, meta } = await paginate<PostEntity>(this.posts, query, { order: { createdAt: 'DESC' } });
+    const { items, meta } = await paginate<PostEntity>(this.posts, query, {
+      order: { createdAt: 'DESC' },
+      relations: ['author', 'file', 'comments'],
+    });
+    // TODO: comments. i think we need to send only 2-3 comments and load the rest only on separate page with pagination
+    // if user wants to see them all
+    // coz if post have 10000+ comments it may be bad
     const formattedPosts = items.map((p) => ({
       ...p,
+      fileURL: p.file?.url,
+      isViewerFollowed: currentUser.followedUsersIDs.includes(p.author.id),
       isViewerLiked: currentUser.likedPostsIDs.includes(p.id),
+      isViewerSaved: false,
+      isViewerInPhoto: false,
     })) as PostEntity[];
     return { items: formattedPosts, meta };
   }
@@ -33,9 +50,16 @@ export class PostsService {
     return await this.posts.findOneOrFail(id, { relations: ['users'] });
   }
 
-  async create(payload: CreatePostDTO, user: UserEntity): Promise<PostEntity> {
+  async create(file: Express.Multer.File, payload: CreatePostDTO, user: UserEntity): Promise<PostEntity> {
+    const uploadedFile = await this.filesService.uploadPublicFile({
+      file,
+      quality: 95,
+      imageMaxSizeMB: 20,
+      type: 'image',
+    });
     return await this.posts.save({
       ...payload,
+      file: uploadedFile,
       author: user,
     });
   }
@@ -51,6 +75,10 @@ export class PostsService {
     await this.posts.delete(id);
   }
 
+  async share(id: number, userID: number): Promise<void> {
+    console.log('share', id, userID);
+  }
+
   async toggleLike(postID: number, userID: number): Promise<void> {
     const userLikedPosts = await this.userService.getLikedPosts(userID);
     const postIndex = userLikedPosts.findIndex((p) => p.id === postID);
@@ -64,7 +92,14 @@ export class PostsService {
 
     await this.userService.update(userID, { likedPosts: userLikedPosts });
   }
-  async share(id: number): Promise<void> {
-    console.log('share', id);
+
+  async updateComment(id: number, text: string): Promise<CommentEntity> {
+    const toUpdate = await this.postComments.findOneOrFail(id);
+    const updated = this.postComments.create({ ...toUpdate, text });
+    await this.postComments.save(updated);
+    return updated;
+  }
+  async deleteComment(id: number): Promise<void> {
+    await this.postComments.delete(id);
   }
 }

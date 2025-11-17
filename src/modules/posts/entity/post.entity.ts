@@ -1,14 +1,16 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, RelationId } from 'typeorm';
 import { BaseEntity } from '../../../common/types/base.entity';
 import { UserEntity } from '../../user/entity/user.entity';
 import { CommentEntity } from './comment.entity';
+import { Exclude } from 'class-transformer';
+import { PublicFileEntity } from '../../files/entity/public-file.entity';
 
 @Entity()
 export class PostEntity extends BaseEntity {
-  @Column()
-  title: string;
   @Column({ nullable: true })
   description: string;
+
+  @Exclude()
   @Column('text', { array: true, nullable: true })
   tags: string[];
 
@@ -24,6 +26,8 @@ export class PostEntity extends BaseEntity {
   })
   @JoinTable()
   likes: UserEntity[];
+  @RelationId('likes')
+  likesUserIDs: number[];
 
   @OneToMany(() => CommentEntity, (comment) => comment.post, {
     cascade: true,
@@ -32,4 +36,11 @@ export class PostEntity extends BaseEntity {
 
   @Column({ type: 'boolean', default: false })
   isVideo: boolean;
+
+  @OneToOne(() => PublicFileEntity, {
+    eager: true,
+    nullable: true,
+  })
+  @JoinColumn()
+  file: PublicFileEntity;
 }
