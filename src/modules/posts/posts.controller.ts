@@ -45,7 +45,10 @@ export class PostsController {
   async delete(@Param('id') id: number): Promise<void> {
     return await this.postsService.delete(id);
   }
-
+  @Post('share/:id')
+  async share(@Body('id') id: number, @Request() req): Promise<void> {
+    return await this.postsService.share(id, req.user.id);
+  }
   @Post('favorite/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async toggleLike(@Param('id') id: number, @Request() req): Promise<void> {
