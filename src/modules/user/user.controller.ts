@@ -21,11 +21,11 @@ import { PublicFileEntity } from '../files/entity/public-file.entity';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   async get(@Query('search') search: string, @Request() req): Promise<UserEntity[]> {
-    return await this.userService.get(search, req.user.id);
+    return await this.userService.getAll(search, req.user.id);
   }
 
   @Get('self')
