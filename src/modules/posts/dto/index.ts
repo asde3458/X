@@ -1,4 +1,5 @@
 import { IsNumber, IsString } from 'class-validator';
+
 export class CreatePostDTO {
   @IsString()
   description: string;
@@ -10,4 +11,5 @@ export class CreateCommentDTO {
   @IsNumber()
   postID: number;
 }
-export class UpdatePostDTO extends CreatePostDTO { }
+
+export class UpdatePostDTO extends CreatePostDTO {}

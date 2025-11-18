@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreatePostDTO, UpdatePostDTO } from './dto';
+import { CreateCommentDTO, CreatePostDTO, UpdatePostDTO } from './dto';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate/index';
 
 import { PostEntity } from './entity/post.entity';
@@ -32,7 +32,7 @@ export class PostsService {
       order: { createdAt: 'DESC' },
       relations: ['author', 'file', 'comments'],
     });
-    // TODO: comments. i think we need to send only 2-3 comments and load the rest only on separate page with pagination
+    // TODO: comments. i think we need to send AND LOAD FROM DB (?) only 2-3 comments and load the rest only on separate page with pagination
     // if user wants to see them all
     // coz if post have 10000+ comments it may be bad
     const formattedPosts = items.map((p) => ({
@@ -50,7 +50,8 @@ export class PostsService {
     return await this.posts.findOneOrFail(id, { relations: ['users'] });
   }
 
-  async create(file: Express.Multer.File, payload: CreatePostDTO, user: UserEntity): Promise<PostEntity> {
+  async create(file: Express.Multer.File, payload: CreatePostDTO, userID: number): Promise<PostEntity> {
+    const user = await this.userService.getByID(userID);
     const uploadedFile = await this.filesService.uploadPublicFile({
       file,
       quality: 95,
@@ -93,6 +94,13 @@ export class PostsService {
     await this.userService.update(userID, { likedPosts: userLikedPosts });
   }
 
+  async createComment({ text, postID }: CreateCommentDTO, userID: number): Promise<CommentEntity> {
+    const user = await this.userService.getByID(userID);
+    const post = await this.posts.findOneOrFail(postID);
+    const comment = await this.postComments.save({ text, post, author: user });
+    delete comment.post;
+    return { ...comment, postID };
+  }
   async updateComment(id: number, text: string): Promise<CommentEntity> {
     const toUpdate = await this.postComments.findOneOrFail(id);
     const updated = this.postComments.create({ ...toUpdate, text });
