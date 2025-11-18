@@ -1,8 +1,13 @@
-import { IsBoolean, IsNotEmpty, IsString, MaxLength } from 'class-validator';
-
+import { IsNumber, IsString } from 'class-validator';
 export class CreatePostDTO {
   @IsString()
   description: string;
 }
+export class CreateCommentDTO {
+  @IsString()
+  text: string;
 
-export class UpdatePostDTO extends CreatePostDTO {}
+  @IsNumber()
+  postID: number;
+}
+export class UpdatePostDTO extends CreatePostDTO { }
