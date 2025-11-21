@@ -23,7 +23,7 @@ import { CommentEntity } from './entity/comment.entity';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(private readonly postsService: PostsService) { }
 
   @Get()
   async getAll(@Query() query: IPaginationOptions, @Request() req): Promise<Pagination<PostEntity>> {
@@ -34,7 +34,10 @@ export class PostsController {
   async getByID(@Param('id') id: number): Promise<PostEntity> {
     return await this.postsService.getByID(id);
   }
-
+  @Get('comments/:id')
+  async getComments(@Param('id') id: number): Promise<CommentEntity[]> {
+    return await this.postsService.getComments(id);
+  }
   @UseInterceptors(FileInterceptor('file'))
   @Post()
   async create(
