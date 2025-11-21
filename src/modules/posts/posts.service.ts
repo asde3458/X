@@ -117,5 +117,8 @@ export class PostsService {
     const post = await this.posts.findOneOrFail(id);
     return await this.postComments.find({ where: { post }, relations: ['author'] });
   }
-
+  async getLikes(id: number): Promise<UserEntity[]> {
+    const post = await this.posts.findOneOrFail(id, { relations: ['likes'] });
+    return post.likes;
+  }
 }
