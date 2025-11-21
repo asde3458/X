@@ -24,7 +24,7 @@ export class PostsService {
 
     @Inject(UserService)
     private readonly userService: UserService
-  ) {}
+  ) { }
 
   async getAll(query: IPaginationOptions = { page: 1, limit: 10 }, userID: number): Promise<Pagination<PostEntity>> {
     const currentUser = await this.userService.getByID(userID);
@@ -113,4 +113,9 @@ export class PostsService {
   async deleteComment(id: number): Promise<void> {
     await this.postComments.delete(id);
   }
+  async getComments(id: number): Promise<CommentEntity[]> {
+    const post = await this.posts.findOneOrFail(id);
+    return await this.postComments.find({ where: { post }, relations: ['author'] });
+  }
+
 }
