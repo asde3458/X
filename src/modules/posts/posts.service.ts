@@ -10,7 +10,7 @@ import { UserEntity } from '../user/entity/user.entity';
 import { FilesService } from '../files/files.service';
 import { UserService } from '../user/user.service';
 import { CommentEntity } from './entity/comment.entity';
-
+import { UserEntity } from '../user/entity/user.entity';
 @Injectable()
 export class PostsService {
   constructor(

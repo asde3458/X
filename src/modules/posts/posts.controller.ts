@@ -20,7 +20,7 @@ import { PostsService } from './posts.service';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommentEntity } from './entity/comment.entity';
-
+import { UserEntity } from '../user/entity/user.entity';
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) { }
