@@ -38,6 +38,11 @@ export class PostsController {
   async getComments(@Param('id') id: number): Promise<CommentEntity[]> {
     return await this.postsService.getComments(id);
   }
+  @Get('likes/:id')
+  async getLikes(@Param('id') id: number): Promise<UserEntity[]> {
+    return await this.postsService.getLikes(id);
+  }
+
   @UseInterceptors(FileInterceptor('file'))
   @Post()
   async create(
