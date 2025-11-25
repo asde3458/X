@@ -11,5 +11,12 @@ export class CreateCommentDTO {
   @IsNumber()
   postID: number;
 }
+export class CreateCommentDTO {
+  @IsString()
+  text: string;
 
-export class UpdatePostDTO extends CreatePostDTO {}
+  @IsNumber()
+  postID: number;
+}
+
+export class UpdatePostDTO extends CreatePostDTO { }
