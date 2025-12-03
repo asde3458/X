@@ -21,6 +21,7 @@ import { CommentEntity } from '../../posts/entity/comment.entity';
 import { PostEntity } from '../../posts/entity/post.entity';
 
 import stringToHslColor from '../../../common/utils/stringToHslColor';
+// import { FollowingEntity } from './following.entity';
 
 export interface UserGoogleData {
   email: string;
@@ -58,7 +59,8 @@ export interface UserSuggestion {
   avatar?: PublicFileEntity | null;
   username: string;
 }
-
+// TODO: should remove relation ids and refactor.
+// cuz if user have lots of subscribers/subscriptions/likes etc it'll send to frontend
 @Entity()
 export class UserEntity extends BaseEntity {
   @Column({ length: 64 })
@@ -125,14 +127,10 @@ export class UserEntity extends BaseEntity {
   @JoinColumn()
   avatar: PublicFileEntity;
 
-  @Column({ nullable: true })
-  position: string;
-  @Column({ nullable: true })
-  department: string;
-  @Column({ nullable: true })
-  organisation: string;
-  @Column({ nullable: true })
-  location: string;
+  @Column({ length: 1024, nullable: true })
+  description: string;
+  @Column({ length: 512, nullable: true })
+  website: string;
 
   @ManyToMany(() => PostEntity, (post) => post.likes, {
     onUpdate: 'CASCADE',
@@ -151,6 +149,7 @@ export class UserEntity extends BaseEntity {
   likedCommentsIDs: number[];
 
   @ManyToMany(() => UserEntity, (user) => user.followedUsers, {
+    cascade: true,
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
@@ -166,6 +165,24 @@ export class UserEntity extends BaseEntity {
   followedUsers: UserEntity[];
   @RelationId('followedUsers')
   followedUsersIDs: number[];
+
+  // @OneToMany(() => FollowingEntity, (following) => following.followedTo, {
+  //   cascade: true,
+  //   onUpdate: 'CASCADE',
+  //   onDelete: 'CASCADE',
+  // })
+  // followers: FollowingEntity[];
+  // // @RelationId('followers')
+  // // followersIDs: number[];
+  //
+  // @OneToMany(() => FollowingEntity, (following) => following.follower, {
+  //   cascade: true,
+  //   onUpdate: 'CASCADE',
+  //   onDelete: 'CASCADE',
+  // })
+  // followedUsers: FollowingEntity[];
+  // // @RelationId('followedUsers')
+  // // followedUsersIDs: number[];
 
   @OneToMany(() => CommentEntity, (comment) => comment.author, {
     cascade: true,

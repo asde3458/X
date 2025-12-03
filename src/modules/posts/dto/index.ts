@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreatePostDTO {
   @IsString()
@@ -6,17 +6,15 @@ export class CreatePostDTO {
 }
 export class CreateCommentDTO {
   @IsString()
+  @IsNotEmpty()
   text: string;
 
   @IsNumber()
+  @IsNotEmpty()
   postID: number;
-}
-export class CreateCommentDTO {
-  @IsString()
-  text: string;
 
   @IsNumber()
-  postID: number;
+  replyCommentID?: number;
 }
 
-export class UpdatePostDTO extends CreatePostDTO { }
+export class UpdatePostDTO extends CreatePostDTO {}
