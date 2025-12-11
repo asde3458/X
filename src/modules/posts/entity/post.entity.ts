@@ -46,4 +46,7 @@ export class PostEntity extends BaseEntity {
   @JoinColumn()
   file: PublicFileEntity;
   fileURL: string;
+  isViewerLiked: boolean;
+  isViewerSaved: boolean;
+  isViewerInPhoto: boolean;
 }
