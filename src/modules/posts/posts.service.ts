@@ -24,7 +24,7 @@ export class PostsService {
 
     @Inject(UserService)
     private readonly userService: UserService
-  ) {}
+  ) { }
 
   async getAll(
     queryOptions: IPaginationOptions = { page: 1, limit: 10 },
@@ -44,7 +44,7 @@ export class PostsService {
         ...p,
         comments: await this.postComments.find({ where: { post: p }, order: { createdAt: 'DESC' }, take: 2 }),
         fileURL: p.file?.url,
-        // TOOD: should be replaced with query
+        // TODO: should be replaced with query
         isViewerLiked: currentUser.likedPostsIDs.includes(p.id),
         isViewerSaved: false,
         isViewerInPhoto: false,
@@ -71,7 +71,7 @@ export class PostsService {
       comments.map((c) => {
         return {
           ...c,
-          // TOOD: should be replaced with query
+          // TODO: should be replaced with query
           isViewerLiked: currentUser.likedCommentsIDs.includes(c.id),
         };
       })
