@@ -136,7 +136,8 @@ export class UserEntity extends BaseEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  posts: PostEntity[]
+  posts: PostEntity[];
+  postsNumber?: number;
   @ManyToMany(() => PostEntity, (post) => post.likes, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
@@ -162,7 +163,7 @@ export class UserEntity extends BaseEntity {
   followers: UserEntity[];
   @RelationId('followers')
   followersIDs: number[];
-
+  followersNumber?: number;
   @ManyToMany(() => UserEntity, (user) => user.followers, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
@@ -170,7 +171,7 @@ export class UserEntity extends BaseEntity {
   followedUsers: UserEntity[];
   @RelationId('followedUsers')
   followedUsersIDs: number[];
-
+  followedNumber?: number;
   // @OneToMany(() => FollowingEntity, (following) => following.followedTo, {
   //   cascade: true,
   //   onUpdate: 'CASCADE',

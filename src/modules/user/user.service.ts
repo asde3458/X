@@ -62,6 +62,15 @@ export class UserService {
       .leftJoinAndSelect('posts.file', 'file')
       .orderBy('posts.createdAt', 'DESC')
       .getOneOrFail();
+    const counts = await this.users
+      .createQueryBuilder('user')
+      .leftJoin('user.posts', 'posts')
+      .leftJoin('user.followers', 'followers')
+      .leftJoin('user.followedUsers', 'followed')
+      .select('COUNT(posts)', 'postsNumber')
+      .addSelect('COUNT(followers)', 'followersNumber')
+      .addSelect('COUNT(followed)', 'followedNumber')
+      .getRawOne();
     const formattedPosts = user.posts.map((p) => {
       return {
         ...p,
