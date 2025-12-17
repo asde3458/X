@@ -23,7 +23,7 @@ import { PublicFileEntity } from '../files/entity/public-file.entity';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   async getAll(@Query('search') search: string, @Request() req): Promise<UserEntity[]> {
@@ -47,6 +47,7 @@ export class UserController {
   }
 
   @Post('avatar')
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Request() req): Promise<PublicFileEntity> {
     return await this.userService.setUserImage(file, 'avatar', req.user.id);
