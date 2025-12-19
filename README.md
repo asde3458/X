@@ -1,1 +1,3 @@
 # Octagram 📷
+### Project structure
+### Stack
