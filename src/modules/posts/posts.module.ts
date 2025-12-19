@@ -10,9 +10,8 @@ import { FilesModule } from '../files/files.module';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PostEntity]), TypeOrmModule.forFeature([CommentEntity]), FilesModule, UserModule],
-  exports: [PostsService],
+  imports: [TypeOrmModule.forFeature([PostEntity, CommentEntity]), FilesModule, UserModule], exports: [PostsService],
   controllers: [PostsController],
   providers: [PostsService],
 })
-export class PostsModule {}
+export class PostsModule { }
