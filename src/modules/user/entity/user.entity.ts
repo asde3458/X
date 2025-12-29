@@ -21,6 +21,7 @@ import { CommentEntity } from '../../posts/entity/comment.entity';
 import { PostEntity } from '../../posts/entity/post.entity';
 
 import stringToHslColor from '../../../common/utils/stringToHslColor';
+import { ReportEntity } from '../../posts/entity/report.entity';
 // import { FollowingEntity } from './following.entity';
 
 export interface UserGoogleData {
@@ -131,6 +132,10 @@ export class UserEntity extends BaseEntity {
   description: string;
   @Column({ length: 512, nullable: true })
   website: string;
+  @Column({ length: 64, nullable: true })
+  phone: string;
+  @Column({ length: 64, nullable: true })
+  gender: string;
 
   @OneToMany(() => PostEntity, (post) => post.author, {
     onUpdate: 'CASCADE',
@@ -138,6 +143,7 @@ export class UserEntity extends BaseEntity {
   })
   posts: PostEntity[];
   postsNumber?: number;
+
   @ManyToMany(() => PostEntity, (post) => post.likes, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
@@ -164,6 +170,7 @@ export class UserEntity extends BaseEntity {
   @RelationId('followers')
   followersIDs: number[];
   followersNumber?: number;
+
   @ManyToMany(() => UserEntity, (user) => user.followers, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
@@ -172,6 +179,7 @@ export class UserEntity extends BaseEntity {
   @RelationId('followedUsers')
   followedUsersIDs: number[];
   followedNumber?: number;
+
   // @OneToMany(() => FollowingEntity, (following) => following.followedTo, {
   //   cascade: true,
   //   onUpdate: 'CASCADE',
@@ -196,6 +204,9 @@ export class UserEntity extends BaseEntity {
     onDelete: 'CASCADE',
   })
   comments: CommentEntity[];
+
+  @OneToMany(() => ReportEntity, (report) => report.reporter)
+  postReports: ReportEntity[];
 
   @OneToMany(() => NotificationEntity, (notification) => notification.user, {
     onUpdate: 'CASCADE',

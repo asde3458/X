@@ -4,6 +4,7 @@ import { UserEntity } from '../../user/entity/user.entity';
 import { CommentEntity } from './comment.entity';
 import { Exclude } from 'class-transformer';
 import { PublicFileEntity } from '../../files/entity/public-file.entity';
+import { ReportEntity } from './report.entity';
 
 @Entity()
 export class PostEntity extends BaseEntity {
@@ -36,6 +37,9 @@ export class PostEntity extends BaseEntity {
   @RelationId('comments')
   commentIDs: number;
 
+  @OneToMany(() => ReportEntity, (report) => report.reported)
+  reports: ReportEntity[];
+
   @Column({ type: 'boolean', default: false })
   isVideo: boolean;
 
@@ -46,6 +50,7 @@ export class PostEntity extends BaseEntity {
   @JoinColumn()
   file: PublicFileEntity;
   fileURL: string;
+
   isViewerLiked: boolean;
   isViewerSaved: boolean;
   isViewerInPhoto: boolean;

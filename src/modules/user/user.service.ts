@@ -24,7 +24,7 @@ export class UserService {
 
     @Inject(FilesService)
     private readonly filesService: FilesService
-  ) { }
+  ) {}
 
   async getAll(search: string, currentUserID: number): Promise<UserEntity[]> {
     if (!search.length)
@@ -63,6 +63,7 @@ export class UserService {
       .leftJoinAndSelect('posts.file', 'file')
       .orderBy('posts.createdAt', 'DESC')
       .getOneOrFail();
+    // TODO: is it possible to move counts query to previous?
     const counts = await this.users
       .createQueryBuilder('user')
       .leftJoin('user.posts', 'posts')
@@ -72,15 +73,18 @@ export class UserService {
       .addSelect('COUNT(followers)', 'followersNumber')
       .addSelect('COUNT(followed)', 'followedNumber')
       .getRawOne();
+
     const formattedPosts = user.posts.map((p) => {
       return {
         ...p,
-        isViewerLiked: user.likedPostsIDs.includes(p.id),
         fileURL: p.file?.url,
+        // TODO: should be replaced with query
+        isViewerLiked: user.likedPostsIDs.includes(p.id),
       };
     });
     return {
       ...user,
+      ...counts,
       posts: formattedPosts,
     } as UserEntity;
   }

@@ -24,7 +24,7 @@ export class PostsService {
 
     @Inject(UserService)
     private readonly userService: UserService
-  ) { }
+  ) {}
 
   async getAll(
     queryOptions: IPaginationOptions = { page: 1, limit: 10 },
