@@ -4,6 +4,6 @@
 ### Stack
 #### Other
 ### App Features
-#Login
+
 ### Installation 
 ### Notes
