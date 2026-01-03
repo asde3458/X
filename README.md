@@ -3,6 +3,9 @@
 
 
 **Install Dependencies**
+warning: `Node version >= 14 is required`
+
+**Install Dependencies**
 
 1.  `npm install` to install root dependencies
 2.  `npm run frontend-install` to install client dependencies
