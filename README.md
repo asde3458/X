@@ -45,7 +45,7 @@ Run the server
 ```
 pnpm start:dev
 ```
-
+## Author
 ## Tests
 
 Not implemented properly yet
