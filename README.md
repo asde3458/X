@@ -49,4 +49,4 @@ pnpm start:dev
 ## Tests
 
 Not implemented properly yet
-
+## License
