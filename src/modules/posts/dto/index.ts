@@ -3,6 +3,7 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class CreatePostDTO {
   @IsString()
   description: string;
+
   @IsString()
   tags: string;
 }
@@ -17,7 +18,6 @@ export class CreateCommentDTO {
 
   @IsNumber()
   replyCommentID?: number;
-
 }
 
-export class UpdatePostDTO extends CreatePostDTO { }
+export class UpdatePostDTO extends CreatePostDTO {}
