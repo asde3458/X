@@ -27,7 +27,7 @@ export class PostsService {
 
     @Inject(UserService)
     private readonly userService: UserService
-  ) { }
+  ) {}
 
   async getAll(
     queryOptions: IPaginationOptions = { page: 1, limit: 10 },
@@ -91,7 +91,6 @@ export class PostsService {
   }
   async getLikes(id: number, currentUserID: number): Promise<UserEntity[]> {
     const post = await this.posts.findOneOrFail(id, { relations: ['likes'] });
-
     return post.likes.map((user) => {
       return {
         ...user,
