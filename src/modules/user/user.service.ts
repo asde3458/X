@@ -24,7 +24,7 @@ export class UserService {
 
     @Inject(FilesService)
     private readonly filesService: FilesService
-  ) {}
+  ) { }
 
   async getAll(search: string, currentUserID: number): Promise<UserEntity[]> {
     if (!search.length)
@@ -61,6 +61,7 @@ export class UserService {
       .leftJoinAndSelect('user.avatar', 'avatar')
       .leftJoinAndSelect('user.posts', 'posts')
       .leftJoinAndSelect('posts.file', 'file')
+      .leftJoinAndSelect('posts.tags', 'tags')
       .loadRelationCountAndMap('user.postsNumber', 'user.posts')
       .loadRelationCountAndMap('user.followersNumber', 'user.followers')
       .loadRelationCountAndMap('user.followedNumber', 'user.followedUsers')
