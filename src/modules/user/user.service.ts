@@ -24,7 +24,7 @@ export class UserService {
 
     @Inject(FilesService)
     private readonly filesService: FilesService
-  ) { }
+  ) {}
 
   async getAll(search: string, currentUserID: number): Promise<UserEntity[]> {
     if (!search.length)
