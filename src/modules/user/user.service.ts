@@ -24,7 +24,7 @@ export class UserService {
 
     @Inject(FilesService)
     private readonly filesService: FilesService
-  ) { }
+  ) {}
 
   async getAll(search: string, currentUserID: number): Promise<UserEntity[]> {
     if (!search.length)
@@ -249,6 +249,10 @@ export class UserService {
 
   async getSuggestions(currentUserID: number): Promise<UserSuggestion[]> {
     // TODO: figure out
+
+    // ?
+    // https://github.com/typeorm/typeorm/blob/master/docs/select-query-builder.md#using-subqueries
+
     // const currentUser = await this.users.findOneOrFail(currentUserID, { relations: ['followers', 'followedUsers'] });
     // const followersThatCurrentUserDontFollow = await this.users
     //   .createQueryBuilder('user')
@@ -288,5 +292,3 @@ export class UserService {
     });
   }
 }
-// ?
-// https://github.com/typeorm/typeorm/blob/master/docs/select-query-builder.md#using-subqueries
