@@ -24,7 +24,7 @@ export class UserService {
 
     @Inject(FilesService)
     private readonly filesService: FilesService
-  ) {}
+  ) { }
 
   async getAll(search: string, currentUserID: number): Promise<UserEntity[]> {
     if (!search.length)
@@ -288,3 +288,5 @@ export class UserService {
     });
   }
 }
+// ?
+// https://github.com/typeorm/typeorm/blob/master/docs/select-query-builder.md#using-subqueries

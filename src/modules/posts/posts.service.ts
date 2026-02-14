@@ -123,6 +123,8 @@ export class PostsService {
     );
   }
 
+  // ?
+  // https://github.com/typeorm/typeorm/blob/master/docs/select-query-builder.md#using-subqueries
   async create(file: Express.Multer.File, payload: CreatePostDTO, userID: number): Promise<PostEntity> {
     const user = await this.userService.getByID(userID);
     const uploadedFile = await this.filesService.uploadPublicFile({
