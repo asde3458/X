@@ -50,3 +50,5 @@ pnpm start:dev
 
 Not implemented properly yet
 ## License
+
+HPNY 2026
