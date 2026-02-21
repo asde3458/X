@@ -30,7 +30,7 @@ export class PostsService {
 
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService
-  ) {}
+  ) { }
 
   async getAll(
     queryOptions: IPaginationOptions = { page: 1, limit: 10 },
@@ -102,7 +102,8 @@ export class PostsService {
     return post.likes.map((user) => {
       return {
         ...user,
-        isViewerFollowed: user.followersIDs.includes(currentUserID),
+        // TODO: replace with query
+        isViewerFollowed: like.user.followersIDs.includes(currentUserID),
       };
     }) as UserEntity[];
   }
