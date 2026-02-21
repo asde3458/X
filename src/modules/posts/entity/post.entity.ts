@@ -41,7 +41,8 @@ export class PostEntity extends BaseEntity {
     cascade: true,
   })
   @JoinTable()
-  likes: UserEntity[];
+  likes: PostLikeEntity[];
+  likesNumber?: number;
   @RelationId('likes')
   likesUserIDs: number[];
 
