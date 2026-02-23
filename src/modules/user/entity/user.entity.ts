@@ -1,10 +1,11 @@
 import {
+  AfterLoad,
   BeforeInsert,
   Column,
   Entity,
+  getConnection,
   Index,
   JoinColumn,
-  JoinTable,
   ManyToMany,
   OneToMany,
   OneToOne,
@@ -23,8 +24,8 @@ import { PostEntity } from '../../posts/entity/post.entity';
 import stringToHslColor from '../../../common/utils/stringToHslColor';
 import { ReportEntity } from '../../posts/entity/report.entity';
 import { RecentSearchEntity } from './recentSearch.entity';
-import { PostLikeEntity } from "../../posts/entity/postLike.entity";
-// import { FollowingEntity } from './following.entity';
+import { PostLikeEntity } from '../../posts/entity/postLike.entity';
+import { FollowingEntity } from './following.entity';
 
 export interface UserGoogleData {
   email: string;
@@ -148,7 +149,7 @@ export class UserEntity extends BaseEntity {
   postsNumber?: number;
 
   @ManyToMany(() => PostLikeEntity, (pl) => pl.user, {
-    cascade: true
+    cascade: true,
   })
   likedPosts: PostLikeEntity[];
 
@@ -160,24 +161,12 @@ export class UserEntity extends BaseEntity {
   @RelationId('likedComments')
   likedCommentsIDs: number[];
 
-  @ManyToMany(() => UserEntity, (user) => user.followedUsers, {
-    cascade: true,
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
-  @JoinTable()
-  followers: UserEntity[];
-  @RelationId('followers')
-  followersIDs: number[];
+  @OneToMany(() => FollowingEntity, (f) => f.user)
+  followers: FollowingEntity[];
   followersNumber?: number;
 
-  @ManyToMany(() => UserEntity, (user) => user.followers, {
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
-  followedUsers: UserEntity[];
-  @RelationId('followedUsers')
-  followedUsersIDs: number[];
+  @OneToMany(() => FollowingEntity, (f) => f.target)
+  followedUsers: FollowingEntity[];
   followedNumber?: number;
 
   // @OneToMany(() => FollowingEntity, (following) => following.followedTo, {
@@ -222,4 +211,34 @@ export class UserEntity extends BaseEntity {
 
   isViewerFollowed?: boolean;
   isViewerBlocked?: boolean;
+
+  @AfterLoad()
+  async count(): Promise<void> {
+    const connection = await getConnection();
+    const repository = connection.getRepository('UserEntity');
+
+    const { count: postsNumber } = await repository
+      .createQueryBuilder('user')
+      .leftJoin('user.posts', 'posts')
+      .leftJoin('posts.author', 'author')
+      .where('author.id = :id', { id: this.id })
+      .select('COUNT(*)', 'count')
+      .getRawOne();
+
+    const { count: followersNumber } = await repository
+      .createQueryBuilder('followers')
+      .where('followers.id = :id', { id: this.id })
+      .select('COUNT(*)', 'count')
+      .getRawOne();
+
+    const { count: followingNumber } = await repository
+      .createQueryBuilder('followedUsers')
+      .where('followedUsers.id = :id', { id: this.id })
+      .select('COUNT(*)', 'count')
+      .getRawOne();
+
+    this.postsNumber = postsNumber;
+    this.followersNumber = followersNumber;
+    this.followedNumber = followingNumber;
+  }
 }

@@ -16,6 +16,7 @@ import { CommentEntity } from './comment.entity';
 import { PublicFileEntity } from '../../files/entity/public-file.entity';
 import { ReportEntity } from './report.entity';
 import { TagEntity } from './tag.entity';
+import { PostLikeEntity } from './postLike.entity';
 
 @Entity()
 export class PostEntity extends BaseEntity {
@@ -37,14 +38,11 @@ export class PostEntity extends BaseEntity {
   @JoinColumn({ name: 'authorID' })
   author: UserEntity;
 
-  @ManyToMany(() => UserEntity, (user) => user.likedPosts, {
+  @OneToMany(() => PostLikeEntity, (pl) => pl.post, {
     cascade: true,
   })
-  @JoinTable()
   likes: PostLikeEntity[];
   likesNumber?: number;
-  @RelationId('likes')
-  likesUserIDs: number[];
 
   @OneToMany(() => CommentEntity, (comment) => comment.post, {
     cascade: true,
