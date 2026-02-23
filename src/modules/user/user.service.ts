@@ -30,7 +30,7 @@ export class UserService {
     private readonly filesService: FilesService,
     @Inject(forwardRef(() => PostsService))
     private readonly postsService: PostsService
-  ) {}
+  ) { }
 
   async getAll(search: string, currentUserID: number): Promise<UserEntity[]> {
     console.log('all following entit', await this.userFollowings.find({ where: { id: currentUserID } }));
@@ -197,6 +197,8 @@ export class UserService {
       .createQueryBuilder('user')
       .where('user.id = :id', { id })
       .leftJoinAndSelect('user.notifications', 'notifications')
+      .leftJoinAndSelect('notifications.post', 'post')
+      .leftJoinAndSelect('post.file', 'file')
       .leftJoinAndSelect('notifications.user', 'notificationsUser')
       .leftJoinAndSelect('notificationsUser.avatar', 'notificationsUserAvatar')
       .orderBy('notifications.createdAt', 'DESC')
