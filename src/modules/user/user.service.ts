@@ -30,7 +30,7 @@ export class UserService {
     private readonly filesService: FilesService,
     @Inject(forwardRef(() => PostsService))
     private readonly postsService: PostsService
-  ) { }
+  ) {}
 
   async getAll(search: string, currentUserID: number): Promise<UserEntity[]> {
     console.log('all following entit', await this.userFollowings.find({ where: { id: currentUserID } }));
