@@ -15,7 +15,7 @@ export class NotificationsService {
 
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService
-  ) {}
+  ) { }
 
   async getAll(userID: number): Promise<NotificationEntity[]> {
     return this.userService.getNotifications(userID);
@@ -52,6 +52,17 @@ export class NotificationsService {
       .where('notification.post.id = :postID', { postID })
       .andWhere('notification.initiatorUser.id = :currentUserID', { currentUserID })
       .getOne();
+    if (notification) await this.notifications.delete(notification.id);
+  }
+  async deleteLastByInitiatorID(initiatorID: number, receiverID): Promise<void> {
+    const notificationArray = await this.notifications
+      .createQueryBuilder('notification')
+      .where('notification.receiverUser.id = :receiverID', { receiverID })
+      .where('notification.initiatorUser.id = :initiatorID', { initiatorID })
+      .orderBy('notification.createdAt', 'DESC')
+      .take(1)
+      .getMany();
+    const notification = notificationArray?.[0];
     if (notification) await this.notifications.delete(notification.id);
   }
 }
