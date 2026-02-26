@@ -15,13 +15,16 @@ export class NotificationsService {
 
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService
-  ) {}
+  ) { }
 
   async getAll(userID: number): Promise<NotificationEntity[]> {
     return this.userService.getNotifications(userID);
   }
 
   async create(payload: CreateNotificationDTO): Promise<NotificationEntity> {
+    const isSameUserAndNotNeedNotification = payload.receiverUserID === payload.initiatorUserID
+    if (isSameUserAndNotNeedNotification) return
+
     const item = this.notifications.create({
       type: payload.type,
       receiverUser: { id: payload.receiverUserID },
