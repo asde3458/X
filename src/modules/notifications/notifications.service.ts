@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { NotificationEntity, NotificationTypes } from './entity/notification.entity';
+import { NotificationEntity } from './entity/notification.entity';
 import { CreateNotificationDTO, UpdateNotificationDTO } from './dto';
 
 import { UserService } from '../user/user.service';
@@ -15,7 +15,7 @@ export class NotificationsService {
 
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService
-  ) { }
+  ) {}
 
   async getAll(userID: number): Promise<NotificationEntity[]> {
     return this.userService.getNotifications(userID);
