@@ -15,7 +15,7 @@ export class NotificationsService {
 
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService
-  ) { }
+  ) {}
 
   async getAll(userID: number): Promise<NotificationEntity[]> {
     return this.userService.getNotifications(userID);
@@ -54,6 +54,7 @@ export class NotificationsService {
       .getOne();
     if (notification) await this.notifications.delete(notification.id);
   }
+
   async deleteLastByInitiatorID(initiatorID: number, receiverID): Promise<void> {
     const notificationArray = await this.notifications
       .createQueryBuilder('notification')
