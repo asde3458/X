@@ -47,7 +47,7 @@ export class PostsService {
 
     @Inject(NotificationsService)
     private readonly notificationsService: NotificationsService
-  ) { }
+  ) {}
 
   async getAll(
     queryOptions: IPaginationOptions = { page: 1, limit: 10 },
@@ -163,13 +163,8 @@ export class PostsService {
       comments.map((c) => {
         return {
           ...c,
-          isViewerLiked: Boolean(
-            await this.postCommentLikes
-              .createQueryBuilder('commentLike')
-              .where('commentLike.user.id = :currentUserID', { currentUserID })
-              .andWhere('commentLike.comment.id = :commentID', { commentID: c.id })
-              .getRawOne()
-          ),
+          // TODO: should be replaced with query
+          isViewerLiked: currentUser.likedCommentsIDs.includes(c.id),
         };
       })
     );
