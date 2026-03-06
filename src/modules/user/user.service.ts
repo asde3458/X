@@ -33,9 +33,10 @@ export class UserService {
     private readonly postsService: PostsService,
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService
-  ) { }
+  ) {}
 
   async getAll(search: string, currentUserID: number): Promise<UserEntity[]> {
+    console.log('all following entit', await this.userFollowings.find({ where: { id: currentUserID } }));
 
     if (!search.length)
       return this.users.find({

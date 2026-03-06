@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateCommentDTO, CreatePostDTO, UpdatePostDTO } from './dto';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate/index';
 
@@ -141,34 +141,27 @@ export class PostsService {
     return await this.posts.findOneOrFail(id, { relations: ['author', 'tags'] });
   }
   async getComments(id: number, currentUserID: number): Promise<CommentEntity[]> {
-    const currentUserRootComments = await this.postComments
+    const currentUserComments = await this.postComments
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.author', 'author')
       .leftJoinAndSelect('author.avatar', 'avatar')
       .where('comment.author.id = :currentUserID', { currentUserID })
       .andWhere('comment.post.id = :postID', { postID: id })
-      .andWhere('comment.parentComment IS NULL')
       .orderBy('comment.createdAt', 'DESC')
       .getMany();
-    const restRootComments = await this.postComments
+    const restComments = await this.postComments
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.author', 'author')
       .leftJoinAndSelect('author.avatar', 'avatar')
       .where('comment.author.id != :currentUserID', { currentUserID })
       .andWhere('comment.post.id = :postID', { postID: id })
-      .andWhere('comment.parentComment IS NULL')
       .orderBy('comment.createdAt', 'DESC')
       .getMany();
-    const allComments = [...currentUserRootComments, ...restRootComments];
-
-    const treeRepository = await getManager().getTreeRepository(CommentEntity);
-
+    const allComments = [...currentUserComments, ...restComments];
     return await Promise.all(
       allComments.map(async (c) => {
-        const { replies } = await treeRepository.findDescendantsTree(c);
         return {
           ...c,
-          replies,
           isViewerLiked: Boolean(
             await this.postCommentLikes
               .createQueryBuilder('commentLike')
