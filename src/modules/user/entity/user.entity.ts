@@ -1,16 +1,14 @@
 import {
   AfterLoad,
-  BeforeInsert,
+  BeforeInsert, BeforeUpdate,
   Column,
   Entity,
   getConnection,
   Index,
   JoinColumn,
-  ManyToMany,
   OneToMany,
-  OneToOne,
-  RelationId,
-} from 'typeorm';
+  OneToOne
+} from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { IsEmail } from 'class-validator';
 import { Exclude } from 'class-transformer';
@@ -85,7 +83,9 @@ export class UserEntity extends BaseEntity {
   @Exclude()
   @Column({ nullable: true, length: 128 })
   password: string;
+
   @BeforeInsert()
+  @BeforeUpdate()
   async hashPassword(): Promise<void> {
     if (this.password) this.password = await bcrypt.hash(this.password, 10);
   }

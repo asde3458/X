@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { getManager, Repository } from 'typeorm';
 import { CreateCommentDTO, CreatePostDTO, UpdatePostDTO } from './dto';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate/index';
 
@@ -47,7 +47,7 @@ export class PostsService {
 
     @Inject(NotificationsService)
     private readonly notificationsService: NotificationsService
-  ) { }
+  ) {}
 
   async getAll(
     queryOptions: IPaginationOptions = { page: 1, limit: 10 },
@@ -78,16 +78,16 @@ export class PostsService {
       const recentOwnPosts =
         Number(queryOptions.page) === 1
           ? await this.posts
-            .createQueryBuilder('post')
-            .leftJoinAndSelect('post.author', 'author')
-            .leftJoinAndSelect('author.avatar', 'avatar')
-            .leftJoinAndSelect('post.file', 'file')
-            .leftJoinAndSelect('post.tags', 'tags')
-            .where('author.id = :userID', { userID })
-            .andWhere('post.createdAt > :yesterday', { yesterday })
-            .orderBy('post.createdAt', 'DESC')
-            .take(5)
-            .getMany()
+              .createQueryBuilder('post')
+              .leftJoinAndSelect('post.author', 'author')
+              .leftJoinAndSelect('author.avatar', 'avatar')
+              .leftJoinAndSelect('post.file', 'file')
+              .leftJoinAndSelect('post.tags', 'tags')
+              .where('author.id = :userID', { userID })
+              .andWhere('post.createdAt > :yesterday', { yesterday })
+              .orderBy('post.createdAt', 'DESC')
+              .take(5)
+              .getMany()
           : [];
       const allPosts = [...recentOwnPosts, ...feedPosts];
 
@@ -159,27 +159,39 @@ export class PostsService {
     return await this.posts.findOneOrFail(id, { relations: ['author', 'tags'] });
   }
   async getComments(id: number, currentUserID: number): Promise<CommentEntity[]> {
-    const currentUserComments = await this.postComments
+    const currentUserRootComments = await this.postComments
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.author', 'author')
       .leftJoinAndSelect('author.avatar', 'avatar')
       .where('comment.author.id = :currentUserID', { currentUserID })
       .andWhere('comment.post.id = :postID', { postID: id })
+      .andWhere('comment.parentComment IS NULL')
       .orderBy('comment.createdAt', 'DESC')
       .getMany();
-    const restComments = await this.postComments
+    const restRootComments = await this.postComments
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.author', 'author')
       .leftJoinAndSelect('author.avatar', 'avatar')
       .where('comment.author.id != :currentUserID', { currentUserID })
       .andWhere('comment.post.id = :postID', { postID: id })
+      .andWhere('comment.parentComment IS NULL')
       .orderBy('comment.createdAt', 'DESC')
       .getMany();
-    const allComments = [...currentUserComments, ...restComments];
+    const allComments = [...currentUserRootComments, ...restRootComments];
+
+    const treeRepository = await getManager().getTreeRepository(CommentEntity);
+
     return await Promise.all(
       allComments.map(async (c) => {
+        // TODO: missing typeorm types?
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        // TODO: missing author relation
+        const { replies } = await treeRepository.findDescendantsTree(c, { relations: ['author'] });
+
         return {
           ...c,
+          replies,
           isViewerLiked: Boolean(
             await this.postCommentLikes
               .createQueryBuilder('commentLike')
@@ -190,15 +202,6 @@ export class PostsService {
         };
       })
     );
-    // TODO: no 'where' option in find trees
-    // const treeRepository = await getManager().getTreeRepository(CommentEntity);
-    // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // // @ts-ignore
-    // const trees = await treeRepository.findTrees({
-    //   where: { post },
-    //   relations: ['author'],
-    // });
-    // return trees;
   }
   async getLikes(id: number, currentUserID: number): Promise<UserEntity[]> {
     const post = await this.posts.findOneOrFail(id, { relations: ['likes'] });
